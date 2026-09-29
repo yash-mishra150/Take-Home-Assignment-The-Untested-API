@@ -89,10 +89,13 @@ describe('getStats', () => {
 });
 
 describe('getByStatus', () => {
-  it('only returns tasks with the exact status', () => {
+  it('returns tasks matching the status string', () => {
     taskService.create({ title: 'one', status: 'in_progress' });
+    taskService.create({ title: 'two', status: 'todo' });
 
-    expect(taskService.getByStatus('in')).toHaveLength(0);
+    expect(taskService.getByStatus('in_progress')).toHaveLength(1);
+    expect(taskService.getByStatus('todo')).toHaveLength(1);
+    expect(taskService.getByStatus('nothing')).toHaveLength(0);
   });
 });
 

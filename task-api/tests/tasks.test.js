@@ -4,6 +4,7 @@ const taskService = require('../src/services/taskService');
 
 // clean the list before every test
 beforeEach(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
   taskService._reset();
 });
 
@@ -143,6 +144,32 @@ describe('GET /tasks/stats', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.todo).toBe(1);
+  });
+});
+
+describe('PATCH /tasks/:id/assign', () => {
+  it('assigns a task to a user', async () => {
+    const task = await makeTask();
+
+    const res = await request(app).patch(`/tasks/${task.id}/assign`).send({ assignee: 'John' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.assignee).toBe('John');
+  });
+
+  it('returns 400 when assignee is missing', async () => {
+    const task = await makeTask();
+
+    const res = await request(app).patch(`/tasks/${task.id}/assign`).send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeTruthy();
+  });
+
+  it('returns 404 when the task does not exist', async () => {
+    const res = await request(app).patch('/tasks/wrong-id/assign').send({ assignee: 'John' });
+
+    expect(res.status).toBe(404);
   });
 });
 
